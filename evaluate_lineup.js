@@ -11,7 +11,7 @@ const DENOMINATION_SHORT_TEXT_TO_NUMS = {
     "sup": [70, 79],
     "exc": [60, 69],
     "good": [50, 59],
-    "decent": [40, 49],
+    "dec": [40, 49],
     "weak": [30, 39],
     "poor": [15, 29],
     "awf": [0, 14]
@@ -38,6 +38,29 @@ class LineupPos {
     player = ''
     pos = ''
     playerNum = 0
+}
+
+class PassReport {
+    ballSender = ''
+    pos = ''
+    skill = 0
+}
+
+class DuelReport {
+    attacker = ''
+    attackPos = ''
+    attackerOp = 0
+    attackerBc = 0
+
+    defender = ''
+    defendPos = ''
+    defenderDp = 0
+    defenderTa = 0
+}
+
+class AttackReport {
+    passReports = []
+    duelReports = []
 }
 
 function readAllMyPlayersData() {
@@ -254,20 +277,148 @@ function readOpponentLineupData(playerNameToPlayerMap) {
 function buildPlayerNameToPlayerMap(opponentPlayers) {
     let map = {}
     opponentPlayers.forEach(player => {
-        map[player.name] = player
+        map[player.name.trim()] = player
     })
 
     return map
 }
 
+function extractLineupByPos(lineup, posSet) {
+    return lineup.filter(it => posSet.has(it.pos))
+}
+
+// generate duel report in middle field
+function buildLeftMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
+    let passersPosSet = new Set()
+    passersPosSet.add('LB')
+    passersPosSet.add('LWB')
+
+    let attackerMiddlePosSet = new Set()
+    attackerMiddlePosSet.add('LM')
+    attackerMiddlePosSet.add('LW')
+
+    let defenderMiddlePosSet = new Set()
+    defenderMiddlePosSet.add('RM')
+    defenderMiddlePosSet.add('RB')
+
+    return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
+}
+
+function buildCenterMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
+    let passersPosSet = new Set()
+    passersPosSet.add('CB')
+    passersPosSet.add('CBL')
+    passersPosSet.add('CBR')
+
+    let attackerMiddlePosSet = new Set()
+    attackerMiddlePosSet.add('CM')
+    attackerMiddlePosSet.add('CML')
+    attackerMiddlePosSet.add('CMR')
+    attackerMiddlePosSet.add('OM')
+    attackerMiddlePosSet.add('DM')
+    attackerMiddlePosSet.add('DML')
+    attackerMiddlePosSet.add('DMR')
+
+    let defenderMiddlePosSet = new Set()
+    defenderMiddlePosSet.add('CM')
+    defenderMiddlePosSet.add('CML')
+    defenderMiddlePosSet.add('CMR')
+    defenderMiddlePosSet.add('DM')
+    defenderMiddlePosSet.add('DML')
+    defenderMiddlePosSet.add('DMR')
+
+    return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
+}
+
+function buildRightMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
+    let passersPosSet = new Set()
+    passersPosSet.add('RB')
+    passersPosSet.add('RWB')
+
+    let attackerMiddlePosSet = new Set()
+    attackerMiddlePosSet.add('RM')
+    attackerMiddlePosSet.add('RW')
+
+    let defenderMiddlePosSet = new Set()
+    defenderMiddlePosSet.add('LM')
+    defenderMiddlePosSet.add('LB')
+
+    return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
+}
+
+function buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet) {
+    let ballPassers = extractLineupByPos(attackTeamLineup, passersPosSet)
+
+    let attackers = extractLineupByPos(attackTeamLineup, attackerMiddlePosSet)
+
+    let defenders = extractLineupByPos(defendTeamLineup, defenderMiddlePosSet)
+
+    return buildDuelReport(ballPassers, attackers, defenders)
+}
+
+function buildDuelReport(ballPassers, attackers, defenders) {
+    let attackReport = new AttackReport()
+
+    // evaluate ball passers
+    ballPassers.forEach(passer => {
+        let passReport = new PassReport()
+        passReport.ballSender = passer.player.name
+        passReport.pos = passer.pos
+        passReport.skill = passer.player.pa
+        attackReport.passReports.push(passReport)
+    })
+
+    // evaluate positional duel and tech duel stage
+    attackers.forEach(attacker => {
+        defenders.forEach(defender => {
+            let duelReport = new DuelReport()
+            duelReport.attacker = attacker.player.name
+            duelReport.attackPos = attacker.pos
+            duelReport.attackerOp = attacker.player.op
+            duelReport.attackerBc = attacker.player.bc
+            duelReport.defender = defender.player.name
+            duelReport.defendPos = defender.pos
+            duelReport.defenderDp = defender.player.dp
+            duelReport.defenderTa = defender.player.ta
+
+            attackReport.duelReports.push(duelReport)
+        })
+    })
+
+    return attackReport
+}
+//
+
+// read data
 let allMyPlayers = readAllMyPlayersData()
 let myPlayerNumberToPlayerMap = buildPlayerNumToPlayerMap(allMyPlayers)
 let myLineup = readMyLineup(myPlayerNumberToPlayerMap)
-let myMiddleDominance = calculateMiddleDominance(myLineup)
 
 let opponentPlayers = readOpponentPlayersData()
 let opponentPlayerNameToPlayerMap = buildPlayerNameToPlayerMap(opponentPlayers)
 let opponentLineup = readOpponentLineupData(opponentPlayerNameToPlayerMap)
-let opponentDominance = calculateMiddleDominance(opponentLineup)
 
-console.log("Middle Domiance: my team vs opponent ===> ", myMiddleDominance, " vs ", opponentDominance)
+// calculate dominance
+let myMiddleDominance = calculateMiddleDominance(myLineup)
+let opponentDominance = calculateMiddleDominance(opponentLineup)
+console.log("Middle Domiance: my team vs opponent ===> ", myMiddleDominance, " vs ", opponentDominance, "\n")
+
+// evaluate middle field duel when attacking
+let leftAttackDuelReport = buildLeftMiddleDuelReport(myLineup, opponentLineup)
+console.log("Middle Duel at left when attacking: => ", JSON.stringify(leftAttackDuelReport, null, 2), "\n")
+
+let rightAttackDuelReport = buildRightMiddleDuelReport(myLineup, opponentLineup)
+console.log("Middle Duel at right when attacking: => ", JSON.stringify(rightAttackDuelReport, null, 2), "\n")
+
+let centerAttackDuelReport = buildCenterMiddleDuelReport(myLineup, opponentLineup)
+console.log("Middle Duel at center when attacking: => ", JSON.stringify(centerAttackDuelReport, null, 2), "\n")
+
+// evaluate middle field duel when defending
+let leftDefendDuelReport = buildLeftMiddleDuelReport(opponentLineup, myLineup)
+console.log("Middle Duel at left when defending: => ", JSON.stringify(leftDefendDuelReport, null, 2), "\n")
+
+let rightDefendDuelReport = buildRightMiddleDuelReport(opponentLineup, myLineup)
+console.log("Middle Duel at right when defending: => ", JSON.stringify(rightDefendDuelReport, null, 2), "\n")
+
+let centerDefendDuelReport = buildCenterMiddleDuelReport(opponentLineup, myLineup)
+console.log("Middle Duel at center when defending: => ", JSON.stringify(centerDefendDuelReport, null, 2), "\n")
