@@ -299,6 +299,7 @@ function buildLeftMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
 
     let defenderMiddlePosSet = new Set()
     defenderMiddlePosSet.add('RM')
+    defenderMiddlePosSet.add('RW')
     defenderMiddlePosSet.add('RB')
 
     return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
@@ -341,6 +342,7 @@ function buildRightMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
 
     let defenderMiddlePosSet = new Set()
     defenderMiddlePosSet.add('LM')
+    defenderMiddlePosSet.add('LW')
     defenderMiddlePosSet.add('LB')
 
     return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
