@@ -301,6 +301,7 @@ function buildLeftMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
     defenderMiddlePosSet.add('RM')
     defenderMiddlePosSet.add('RW')
     defenderMiddlePosSet.add('RB')
+    defenderMiddlePosSet.add('RWB')
 
     return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
 }
