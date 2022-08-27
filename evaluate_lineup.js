@@ -85,6 +85,15 @@ function getOpt(args, optKey) {
     return undefined
 }
 
+/**
+ * A better altanative to native toFixed() method
+ * @see https://stackoverflow.com/a/661757
+ */
+function toFixed(value, precision) {
+    var power = Math.pow(10, precision || 0)
+    return Math.round(value * power) / power
+}
+
 function readAllMyPlayersData(my_players_list_file) {
     let raw = std.loadFile(my_players_list_file)
     raw = raw.replace(/^\s*[\r\n]/gm,"")
@@ -433,12 +442,12 @@ function buildDuelReport(ballPassers, attackers, defenders) {
             duelReport.attackPos = attacker.pos
             duelReport.attackerOp = attacker.player.op
             duelReport.attackerBc = attacker.player.bc
-            duelReport.attackerEffectiveAe = (attacker.player.bc * 1.2 + attacker.player.ae * 1.8) / 3
+            duelReport.attackerEffectiveAe = toFixed((attacker.player.bc * 1.2 + attacker.player.ae * 1.8) / 3, 2)
             duelReport.defender = defender.player.name
             duelReport.defendPos = defender.pos
             duelReport.defenderDp = defender.player.dp
             duelReport.defenderTa = defender.player.ta
-            duelReport.defenderEffectiveAe = (defender.player.ta * 1.2 + defender.player.ae * 1.8) / 3
+            duelReport.defenderEffectiveAe = toFixed((defender.player.ta * 1.2 + defender.player.ae * 1.8) / 3, 2)
 
             attackReport.duelReports.push(duelReport)
         })
