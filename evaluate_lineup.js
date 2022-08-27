@@ -63,6 +63,31 @@ class AttackReport {
     duelReports = []
 }
 
+/**
+ * only support parsing command line arguments like this: -a xxx -b yyy
+ */
+function getOpt(args, optKey) {
+    for (let i = 0; i < args.length; i++) {
+        let currArg = args[i]
+        if (currArg === optKey) {
+            if (i === args.length - 1) {
+                // no following arg value
+                return undefined
+            }
+
+            let nextArg = args[i + 1]
+            if (nextArg.startsWith('-')) {
+                // next arg is still a option key
+                return undefined
+            }
+
+            return nextArg
+        }
+    }
+
+    return undefined
+}
+
 function readAllMyPlayersData() {
     let raw = std.loadFile(MY_PLAYERS_LIST_FILE)
     raw = raw.replace(/^\s*[\r\n]/gm,"")
