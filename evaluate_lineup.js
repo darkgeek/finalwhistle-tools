@@ -46,11 +46,13 @@ class DuelReport {
     attackPos = ''
     attackerOp = 0
     attackerBc = 0
+    attackerEffectiveAe = 0
 
     defender = ''
     defendPos = ''
     defenderDp = 0
     defenderTa = 0
+    defenderEffectiveAe = 0
 }
 
 class AttackReport {
@@ -431,10 +433,12 @@ function buildDuelReport(ballPassers, attackers, defenders) {
             duelReport.attackPos = attacker.pos
             duelReport.attackerOp = attacker.player.op
             duelReport.attackerBc = attacker.player.bc
+            duelReport.attackerEffectiveAe = (attacker.player.bc * 1.2 + attacker.player.ae * 1.8) / 3
             duelReport.defender = defender.player.name
             duelReport.defendPos = defender.pos
             duelReport.defenderDp = defender.player.dp
             duelReport.defenderTa = defender.player.ta
+            duelReport.defenderEffectiveAe = (defender.player.ta * 1.2 + defender.player.ae * 1.8) / 3
 
             attackReport.duelReports.push(duelReport)
         })
