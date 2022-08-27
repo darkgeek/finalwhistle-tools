@@ -1,10 +1,5 @@
 import * as std from 'std'
 
-const MY_PLAYERS_LIST_FILE = './my-players.data'
-const MY_LINEUP_FILE = './my-lineup.data'
-const OPPONENT_PLAYERS_LIST_FILE = './opponent-all-players.data'
-const OPPONENT_LINEUP_FILE = './opponent-lineup.data'
-
 const DENOMINATION_SHORT_TEXT_TO_NUMS = {
     "awe": [90, 100],
     "bri": [80, 89],
@@ -63,8 +58,33 @@ class AttackReport {
     duelReports = []
 }
 
-function readAllMyPlayersData() {
-    let raw = std.loadFile(MY_PLAYERS_LIST_FILE)
+/**
+ * only support parsing command line arguments like this: -a xxx -b yyy
+ */
+function getOpt(args, optKey) {
+    for (let i = 0; i < args.length; i++) {
+        let currArg = args[i]
+        if (currArg === optKey) {
+            if (i === args.length - 1) {
+                // no following arg value
+                return undefined
+            }
+
+            let nextArg = args[i + 1]
+            if (nextArg.startsWith('-')) {
+                // next arg is still a option key
+                return undefined
+            }
+
+            return nextArg
+        }
+    }
+
+    return undefined
+}
+
+function readAllMyPlayersData(my_players_list_file) {
+    let raw = std.loadFile(my_players_list_file)
     raw = raw.replace(/^\s*[\r\n]/gm,"")
     let lines = raw.split("\n")
 
@@ -118,8 +138,8 @@ function buildPlayerNumToPlayerMap(allMyPlayers) {
     return map
 }
 
-function readMyLineup(myPlayerNumToPlayerMap) {
-    let raw = std.loadFile(MY_LINEUP_FILE)
+function readMyLineup(my_lineup_file, myPlayerNumToPlayerMap) {
+    let raw = std.loadFile(my_lineup_file)
     raw = raw.replace(/^\s*[\r\n]/gm,"")
     let lines = raw.split("\n")
 
@@ -198,8 +218,8 @@ function calculateDominance(lineupPlayers) {
     return pa * 2 + bc + op + Math.min(op + bc, ta + dp)
 }
 
-function readOpponentPlayersData() {
-    let raw = std.loadFile(OPPONENT_PLAYERS_LIST_FILE)
+function readOpponentPlayersData(opponent_players_list_file) {
+    let raw = std.loadFile(opponent_players_list_file)
     raw = raw.replace(/^\s*[\r\n]/gm,"")
     let lines = raw.split("\n")
 
@@ -251,8 +271,8 @@ function getNumericalValue(denominationShortTextual) {
     return result
 }
 
-function readOpponentLineupData(playerNameToPlayerMap) {
-    let raw = std.loadFile(OPPONENT_LINEUP_FILE)
+function readOpponentLineupData(opponent_lineup_file, playerNameToPlayerMap) {
+    let raw = std.loadFile(opponent_lineup_file)
     raw = raw.replace(/^\s*[\r\n]/gm,"")
     let lines = raw.split("\n")
 
@@ -393,14 +413,24 @@ function buildDuelReport(ballPassers, attackers, defenders) {
 }
 //
 
-// read data
-let allMyPlayers = readAllMyPlayersData()
-let myPlayerNumberToPlayerMap = buildPlayerNumToPlayerMap(allMyPlayers)
-let myLineup = readMyLineup(myPlayerNumberToPlayerMap)
+let my_players_list_file = getOpt(scriptArgs, '-mp')
+let my_lineup_file = getOpt(scriptArgs, '-ml')
+let opponent_players_list_file = getOpt(scriptArgs, '-op')
+let opponent_lineup_file = getOpt(scriptArgs, '-ol')
+if (!my_players_list_file || !my_lineup_file || !opponent_players_list_file || !opponent_lineup_file) {
+    console.log('Missing player data, aborted. You must have -mp (my players list file), -ml (my lineup file), -op (opponent players list file), -ol (opponent lineup file) set.')
+    std.exit(1)
+}
 
-let opponentPlayers = readOpponentPlayersData()
+
+// read data
+let allMyPlayers = readAllMyPlayersData(my_players_list_file)
+let myPlayerNumberToPlayerMap = buildPlayerNumToPlayerMap(allMyPlayers)
+let myLineup = readMyLineup(my_lineup_file, myPlayerNumberToPlayerMap)
+
+let opponentPlayers = readOpponentPlayersData(opponent_players_list_file)
 let opponentPlayerNameToPlayerMap = buildPlayerNameToPlayerMap(opponentPlayers)
-let opponentLineup = readOpponentLineupData(opponentPlayerNameToPlayerMap)
+let opponentLineup = readOpponentLineupData(opponent_lineup_file, opponentPlayerNameToPlayerMap)
 
 // calculate dominance
 let myMiddleDominance = calculateMiddleDominance(myLineup)
