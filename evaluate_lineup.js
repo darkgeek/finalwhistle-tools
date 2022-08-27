@@ -105,7 +105,7 @@ function readAllMyPlayersData(my_players_list_file) {
             current.number = parts[0]
         } else if (parts.length == 2) {
             // process name line
-            current.name = parts[1]
+            current.name = parts[1].trim()
         } else if (parts.length > 2) {
             // process palyer detail line
             current.age = parseInt(parts[3].trim())
@@ -237,7 +237,7 @@ function readOpponentPlayersData(opponent_players_list_file) {
         }
 
         let player = new Player()
-        player.name = parts[0]
+        player.name = parts[0].trim()
         player.age = parseInt(parts[2].trim())
         player.pos = parts[3].trim()
         player.rate = parseInt(parts[4])
@@ -323,7 +323,7 @@ function buildLeftMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
     defenderMiddlePosSet.add('RB')
     defenderMiddlePosSet.add('RWB')
 
-    return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
+    return startBuildDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
 }
 
 function buildCenterMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
@@ -349,7 +349,7 @@ function buildCenterMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
     defenderMiddlePosSet.add('DML')
     defenderMiddlePosSet.add('DMR')
 
-    return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
+    return startBuildDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
 }
 
 function buildRightMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
@@ -367,15 +367,46 @@ function buildRightMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
     defenderMiddlePosSet.add('LB')
     defenderMiddlePosSet.add('LWB')
 
-    return buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
+    return startBuildDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
 }
 
-function buildMiddleDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet) {
+function buildPenaltyBoxDuelReport(attackTeamLineup, defendTeamLineup) {
+    let passersPosSet = new Set()
+    passersPosSet.add('CM')
+    passersPosSet.add('CML')
+    passersPosSet.add('CMR')
+    passersPosSet.add('LM')
+    passersPosSet.add('RM')
+    passersPosSet.add('LW')
+    passersPosSet.add('RW')
+    passersPosSet.add('OM')
+    passersPosSet.add('OML')
+    passersPosSet.add('OMR')
+
+    let attackerPosSet = new Set()
+    attackerPosSet.add('FW')
+    attackerPosSet.add('FWL')
+    attackerPosSet.add('FWR')
+    attackerPosSet.add('LW')
+    attackerPosSet.add('RW')
+    attackerPosSet.add('OM')
+    attackerPosSet.add('OML')
+    attackerPosSet.add('OMR')
+
+    let defenderPosSet = new Set()
+    defenderPosSet.add('CB')
+    defenderPosSet.add('CBL')
+    defenderPosSet.add('CBR')
+
+    return startBuildDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerPosSet, defenderPosSet)
+}
+
+function startBuildDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerPosSet, defenderPosSet) {
     let ballPassers = extractLineupByPos(attackTeamLineup, passersPosSet)
 
-    let attackers = extractLineupByPos(attackTeamLineup, attackerMiddlePosSet)
+    let attackers = extractLineupByPos(attackTeamLineup, attackerPosSet)
 
-    let defenders = extractLineupByPos(defendTeamLineup, defenderMiddlePosSet)
+    let defenders = extractLineupByPos(defendTeamLineup, defenderPosSet)
 
     return buildDuelReport(ballPassers, attackers, defenders)
 }
@@ -456,3 +487,11 @@ console.log("Middle Duel at right when defending: => ", JSON.stringify(rightDefe
 
 let centerDefendDuelReport = buildCenterMiddleDuelReport(opponentLineup, myLineup)
 console.log("Middle Duel at center when defending: => ", JSON.stringify(centerDefendDuelReport, null, 2), "\n")
+
+// evaluate penalty box duel when attacking
+let pbAttackDuelReport = buildPenaltyBoxDuelReport(myLineup, opponentLineup)
+console.log("Penalty Box Duel when attacking: => ", JSON.stringify(pbAttackDuelReport, null, 2), "\n")
+
+// evaluate penalty box duel when defending
+let pbDefendDuelReport = buildPenaltyBoxDuelReport(opponentLineup, myLineup)
+console.log("Penalty Box Duel when defending: => ", JSON.stringify(pbDefendDuelReport, null, 2), "\n")
