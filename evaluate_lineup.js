@@ -46,11 +46,13 @@ class DuelReport {
     attackPos = ''
     attackerOp = 0
     attackerBc = 0
+    attackerEffectiveAe = 0
 
     defender = ''
     defendPos = ''
     defenderDp = 0
     defenderTa = 0
+    defenderEffectiveAe = 0
 }
 
 class AttackReport {
@@ -81,6 +83,15 @@ function getOpt(args, optKey) {
     }
 
     return undefined
+}
+
+/**
+ * A better altanative to native toFixed() method
+ * @see https://stackoverflow.com/a/661757
+ */
+function toFixed(value, precision) {
+    var power = Math.pow(10, precision || 0)
+    return Math.round(value * power) / power
 }
 
 function readAllMyPlayersData(my_players_list_file) {
@@ -431,10 +442,12 @@ function buildDuelReport(ballPassers, attackers, defenders) {
             duelReport.attackPos = attacker.pos
             duelReport.attackerOp = attacker.player.op
             duelReport.attackerBc = attacker.player.bc
+            duelReport.attackerEffectiveAe = Math.min(toFixed((attacker.player.bc * 1.2 + attacker.player.ae * 1.8) / 3, 2), attacker.player.ae + 10)
             duelReport.defender = defender.player.name
             duelReport.defendPos = defender.pos
             duelReport.defenderDp = defender.player.dp
             duelReport.defenderTa = defender.player.ta
+            duelReport.defenderEffectiveAe = Math.min(toFixed((defender.player.ta * 1.2 + defender.player.ae * 1.8) / 3, 2), attacker.player.ae + 10)
 
             attackReport.duelReports.push(duelReport)
         })
