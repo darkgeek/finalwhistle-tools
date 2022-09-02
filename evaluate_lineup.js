@@ -12,6 +12,12 @@ const DENOMINATION_SHORT_TEXT_TO_NUMS = {
     "awf": [0, 14]
 }
 
+const TEAM_ORDER_CREATIVE_PLAY = 'creative-play'
+const TEAM_ORDER_PRESSING = 'pressing'
+const TEAM_ORDER_THROGH_BALLS = 'through-balls'
+const TEAM_ORDER_SHORT_PASSES = 'short-passes'
+const TEAM_ORDER_FLEXIBLE = 'flexible'
+
 class Player {
     number = 0
     name = ''
@@ -33,6 +39,7 @@ class LineupPos {
     player = ''
     pos = ''
     playerNum = 0
+    teamOrder = ''
 }
 
 class PassReport {
@@ -198,7 +205,16 @@ function calculateMiddleDominance(myLineup) {
     filterLineupPlayerByPosition(offensivePlayers, myLineup, 'LWB')
     filterLineupPlayerByPosition(offensivePlayers, myLineup, 'RWB')
 
-    return calculateDominance(middlePlayers) + 0.6 * calculateDominance(offensivePlayers) + 0.3 * calculateDominance(defensivePlayers)
+    // calculate contributions based on team order
+    let teamOrder = myLineup.teamOrder
+    let offensiveContributionRate = 0.6
+    let defensiveContributionRate = 0.3
+    if (teamOrder === TEAM_ORDER_FLEXIBLE) {
+        offensiveContributionRate += 0.15
+        defensiveContributionRate += 0.15
+    }
+
+    return calculateDominance(middlePlayers) + offensiveContributionRate * calculateDominance(offensivePlayers) + defensiveContributionRate * calculateDominance(defensivePlayers)
 }
 
 function filterLineupPlayerByPosition(resultContainer, myLineup, position) {
@@ -457,6 +473,62 @@ function buildDuelReport(ballPassers, attackers, defenders) {
 }
 //
 
+// add boost or penalty to players after team order is applied
+function calculateEffectionToPlayersByTeamOrder(lineup) {
+    let teamOrder = lineup.teamOrder
+    if (teamOrder === TEAM_ORDER_CREATIVE_PLAY) {
+        lineup.forEach(player => {
+            if (isMiddleFieldPlayer(player)) {
+                player.player.bc += 6
+            }
+        }) 
+    } else if (teamOrder === TEAM_ORDER_PRESSING) {
+        lineup.forEach(player => {
+            if (isMiddleFieldPlayer(player)) {
+                player.player.dp += 5
+                player.player.ta += 5
+                player.player.co *= 0.9
+            }
+        }) 
+    } else if (teamOrder === TEAM_ORDER_SHORT_PASSES) {
+        lineup.forEach(player => {
+            if (isMiddleFieldPlayer(player)) {
+                player.player.pa += 6
+            }
+        }) 
+    } else if (teamOrder === TEAM_ORDER_THROGH_BALLS) {
+        lineup.forEach(player => {
+            if (isMiddleFieldPlayer(player)) {
+                player.player.op += 6
+            }
+        }) 
+    }
+}
+
+function isMiddleFieldPlayer(player) {
+    switch (player.pos) {
+        case 'CM':
+        case 'CML':
+        case 'CMR':
+        case 'LM':
+        case 'RM':
+        case 'LW':
+        case 'RW':
+        case 'OM':
+        case 'OML':
+        case 'OMR':
+        case 'DM':
+        case 'DML':
+        case 'DMR':
+        case 'LWB':
+        case 'RWB':
+            return true
+        default:
+            return false
+    }
+}
+
+// parse command line arguments
 let my_players_list_file = getOpt(scriptArgs, '-mp')
 let my_lineup_file = getOpt(scriptArgs, '-ml')
 let opponent_players_list_file = getOpt(scriptArgs, '-op')
@@ -466,6 +538,12 @@ if (!my_players_list_file || !my_lineup_file || !opponent_players_list_file || !
     std.exit(1)
 }
 
+let myTeamOrder = getOpt(scriptArgs, '-mt')
+let opponentTeamOrder = getOpt(scriptArgs, '-ot')
+if (!myTeamOrder || !opponentTeamOrder) {
+    console.log('Team order is mandatory. You must have -mt (my team order) and -ot (opponent team order) set.')
+    std.exit(2)
+}
 
 // read data
 let allMyPlayers = readAllMyPlayersData(my_players_list_file)
@@ -475,6 +553,14 @@ let myLineup = readMyLineup(my_lineup_file, myPlayerNumberToPlayerMap)
 let opponentPlayers = readOpponentPlayersData(opponent_players_list_file)
 let opponentPlayerNameToPlayerMap = buildPlayerNameToPlayerMap(opponentPlayers)
 let opponentLineup = readOpponentLineupData(opponent_lineup_file, opponentPlayerNameToPlayerMap)
+
+// calculate effect brought by team orders
+myLineup.teamOrder = myTeamOrder
+calculateEffectionToPlayersByTeamOrder(myLineup)
+
+opponentLineup.teamOrder = opponentTeamOrder
+calculateEffectionToPlayersByTeamOrder(opponentLineup)
+
 
 // calculate dominance
 let myMiddleDominance = calculateMiddleDominance(myLineup)
