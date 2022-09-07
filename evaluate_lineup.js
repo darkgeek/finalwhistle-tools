@@ -520,8 +520,6 @@ function isMiddleFieldPlayer(player) {
         case 'DM':
         case 'DML':
         case 'DMR':
-        case 'LWB':
-        case 'RWB':
             return true
         default:
             return false
