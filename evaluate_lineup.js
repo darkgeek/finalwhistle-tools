@@ -463,7 +463,7 @@ function buildDuelReport(ballPassers, attackers, defenders) {
             duelReport.defendPos = defender.pos
             duelReport.defenderDp = defender.player.dp
             duelReport.defenderTa = defender.player.ta
-            duelReport.defenderEffectiveAe = Math.min(toFixed((defender.player.ta * 1.2 + defender.player.ae * 1.8) / 3, 2), attacker.player.ae + 10)
+            duelReport.defenderEffectiveAe = Math.min(toFixed((defender.player.ta * 1.2 + defender.player.ae * 1.8) / 3, 2), defender.player.ae + 10)
 
             attackReport.duelReports.push(duelReport)
         })
