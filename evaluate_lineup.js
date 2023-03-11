@@ -242,7 +242,7 @@ function calculateDominance(lineupPlayers) {
         dp += lineup.player.dp
     })
 
-    return pa * 2 + bc + op + Math.min(op + bc, ta + dp)
+    return pa + bc + op + Math.min(op + bc, ta + dp)
 }
 
 function readOpponentPlayersData(opponent_players_list_file) {
