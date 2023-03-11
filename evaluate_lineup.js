@@ -103,45 +103,33 @@ function toFixed(value, precision) {
 
 function readAllMyPlayersData(my_players_list_file) {
     let raw = std.loadFile(my_players_list_file)
-    raw = raw.replace(/^\s*[\r\n]/gm,"")
-    let lines = raw.split("\n")
+    let rawPlayers = JSON.parse(raw)
 
     let allPlayers = []
-    let current = undefined
+    rawPlayers.forEach(player => {
+        let current = new Player()
 
-    lines.forEach((line, index) => {
-        let parts = line.split("\t")
+        current.number = player.shirtNumber
+        current.name = player.firstName + " " + player.lastName
+        current.age = player.ageYear
+        current.pos = player.favouritePosition
 
-        // skip title line
-        if (index == 0) {
-            return
+        if (current.pos === 'GK') {
+            // skip Goalkeeper
+            return;
         }
 
-        if (!current && parts.length == 1) {
-            // process number line
-            current = new Player()
-            current.number = parts[0]
-        } else if (parts.length == 2) {
-            // process name line
-            current.name = parts[1].trim()
-        } else if (parts.length > 2) {
-            // process palyer detail line
-            current.age = parseInt(parts[3].trim())
-            current.pos = parts[4].trim()
-            current.sc = parseInt((parts[6].split(" "))[0])
-            current.op = parseInt((parts[7].split(" "))[0])
-            current.bc = parseInt((parts[8].split(" "))[0])
-            current.pa = parseInt((parts[9].split(" "))[0])
-            current.ae = parseInt((parts[10].split(" "))[0])
-            current.co = parseInt((parts[11].split(" "))[0])
-            current.ta = parseInt((parts[12].split(" "))[0])
-            current.dp = parseInt((parts[13].split(" "))[0])
-            current.foot = parts[14]
+        current.sc = player.outfielderSkills.scoring
+        current.op = player.outfielderSkills.offensivePositioning
+        current.bc = player.outfielderSkills.ballControl
+        current.pa = player.outfielderSkills.passing
+        current.ae = player.outfielderSkills.arealAbility
+        current.co = player.outfielderSkills.constitution
+        current.ta = player.outfielderSkills.tackling
+        current.dp = player.outfielderSkills.tackling
+        current.foot = player.footRaw
 
-            // it's done for the current player
-            allPlayers.push(current)
-            current = undefined
-        }
+        allPlayers.push(current)
     })
 
     return allPlayers
