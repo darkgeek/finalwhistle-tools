@@ -105,6 +105,10 @@ function readAllMyPlayersData(my_players_list_file) {
     let raw = std.loadFile(my_players_list_file)
     let rawPlayers = JSON.parse(raw)
 
+    return parseAllPlayersFromJson(rawPlayers)
+}
+
+function parseAllPlayersFromJson(rawPlayers) {
     let allPlayers = []
     rawPlayers.forEach(player => {
         let current = new Player()
@@ -235,41 +239,9 @@ function calculateDominance(lineupPlayers) {
 
 function readOpponentPlayersData(opponent_players_list_file) {
     let raw = std.loadFile(opponent_players_list_file)
-    raw = raw.replace(/^\s*[\r\n]/gm,"")
-    let lines = raw.split("\n")
+    let rawPlayers = JSON.parse(raw)
 
-    let allPlayers = []
-    lines.forEach((content, index) => {
-        let parts = content.split("\t")
-
-        if (index == 0) {
-            // skip title line
-            return
-        }
-
-        if (parts.length < 2) {
-            return
-        }
-
-        let player = new Player()
-        player.name = parts[0].trim()
-        player.age = parseInt(parts[2].trim())
-        player.pos = parts[3].trim()
-        player.rate = parseInt(parts[4])
-        player.sc = getNumericalValue(parts[5])
-        player.op = getNumericalValue(parts[6])
-        player.bc = getNumericalValue(parts[7])
-        player.pa = getNumericalValue(parts[8])
-        player.ae = getNumericalValue(parts[9])
-        player.co = getNumericalValue(parts[10])
-        player.ta = getNumericalValue(parts[11])
-        player.dp = getNumericalValue(parts[12])
-        player.foot = parts[13]
-
-        allPlayers.push(player)
-    })
-
-    return allPlayers
+    return parseAllPlayersFromJson(rawPlayers)
 }
 
 function getNumericalValue(denominationShortTextual) {
