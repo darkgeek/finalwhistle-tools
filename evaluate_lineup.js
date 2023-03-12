@@ -130,7 +130,7 @@ function parseAllPlayersFromJson(rawPlayers) {
         current.ae = player.outfielderSkills.arealAbility
         current.co = player.outfielderSkills.constitution
         current.ta = player.outfielderSkills.tackling
-        current.dp = player.outfielderSkills.tackling
+        current.dp = player.outfielderSkills.defensivePositioning
         current.foot = player.footRaw
 
         allPlayers.push(current)
