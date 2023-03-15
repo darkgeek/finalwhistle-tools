@@ -114,9 +114,9 @@ function parseAllPlayersFromJson(rawPlayers) {
         let current = new Player()
 
         current.number = player.shirtNumber
-        current.name = player.firstName + " " + player.lastName
+        current.name = player.firstName.trim() + " " + player.lastName.trim()
         current.age = player.ageYear
-        current.pos = player.favouritePosition
+        current.pos = player.favouritePosition.trim()
 
         if (current.pos === 'GK') {
             // skip Goalkeeper
