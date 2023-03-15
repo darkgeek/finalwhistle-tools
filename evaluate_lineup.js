@@ -335,6 +335,9 @@ function buildCenterMiddleDuelReport(attackTeamLineup, defendTeamLineup) {
     defenderMiddlePosSet.add('DM')
     defenderMiddlePosSet.add('DML')
     defenderMiddlePosSet.add('DMR')
+    defenderMiddlePosSet.add('OM')
+    defenderMiddlePosSet.add('OML')
+    defenderMiddlePosSet.add('OMR')
 
     return startBuildDuelReport(attackTeamLineup, defendTeamLineup, passersPosSet, attackerMiddlePosSet, defenderMiddlePosSet)
 }
