@@ -202,8 +202,8 @@ function calculateMiddleDominance(myLineup) {
     let offensiveContributionRate = 0.6
     let defensiveContributionRate = 0.3
     if (teamOrder === TEAM_ORDER_FLEXIBLE) {
-        offensiveContributionRate += 0.15
-        defensiveContributionRate += 0.15
+        offensiveContributionRate += 0.30
+        defensiveContributionRate += 0.30
     }
 
     return calculateDominance(middlePlayers) + offensiveContributionRate * calculateDominance(offensivePlayers) + defensiveContributionRate * calculateDominance(defensivePlayers)
