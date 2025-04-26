@@ -258,22 +258,22 @@ function getNumericalValue(denominationShortTextual) {
     return result
 }
 
-function readOpponentLineupData(opponent_lineup_file, playerNameToPlayerMap) {
+function readOpponentLineupData(opponent_lineup_file, playerNameToPlayerMap, place) {
     let raw = std.loadFile(opponent_lineup_file)
-    raw = raw.replace(/^\s*[\r\n]/gm,"")
-    let lines = raw.split("\n")
+    let matchReport = JSON.parse(raw)
+
+    let rawLineupPos = []
+    if (place == 'home') {
+        rawLineupPos = matchReport.homeStartingLineup
+    } else {
+        rawLineupPos = matchReport.awayStartingLineup
+    }
 
     let allLineupPos = []
-    lines.forEach((rawPos, index) => {
-        if (index > 10) {
-            // we only need 11 players
-            return
-        }
-
-        let parts = rawPos.split("\t")
+    rawLineupPos.forEach((rawPos, index) => {
         let lineupPos = new LineupPos()
-        lineupPos.pos = parts[0].trim()
-        lineupPos.player = playerNameToPlayerMap[parts[1]]
+        lineupPos.pos = rawPos.position
+        lineupPos.player = playerNameToPlayerMap[rawPos.firstName + " " + rawPos.lastName]
 
         allLineupPos.push(lineupPos)
     })
@@ -506,6 +506,12 @@ if (!myTeamOrder || !opponentTeamOrder) {
     std.exit(2)
 }
 
+let opponentLastMatchPlace = getOpt(scriptArgs, '-olp')
+if (!opponentLastMatchPlace) {
+    console.log("You must set -olp (Opponent's last match place) [home|away]")
+    std.exit(3)
+}
+
 // read data
 let allMyPlayers = readAllMyPlayersData(my_players_list_file)
 let myPlayerNumberToPlayerMap = buildPlayerNumToPlayerMap(allMyPlayers)
@@ -513,7 +519,7 @@ let myLineup = readMyLineup(my_lineup_file, myPlayerNumberToPlayerMap)
 
 let opponentPlayers = readOpponentPlayersData(opponent_players_list_file)
 let opponentPlayerNameToPlayerMap = buildPlayerNameToPlayerMap(opponentPlayers)
-let opponentLineup = readOpponentLineupData(opponent_lineup_file, opponentPlayerNameToPlayerMap)
+let opponentLineup = readOpponentLineupData(opponent_lineup_file, opponentPlayerNameToPlayerMap, opponentLastMatchPlace)
 
 // calculate effect brought by team orders
 myLineup.teamOrder = myTeamOrder
