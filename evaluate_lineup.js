@@ -448,15 +448,15 @@ function calculateEffectionToPlayersByTeamOrder(lineup) {
     } else if (teamOrder === TEAM_ORDER_PRESSING) {
         lineup.forEach(player => {
             if (isMiddleFieldPlayer(player)) {
-                player.player.dp += 5
-                player.player.ta += 5
+                player.player.dp += 4
+                player.player.ta += 4
                 player.player.co *= 0.9
             }
         }) 
     } else if (teamOrder === TEAM_ORDER_SHORT_PASSES) {
         lineup.forEach(player => {
             if (isMiddleFieldPlayer(player)) {
-                player.player.pa += 6
+                player.player.pa += 7
             }
         }) 
     } else if (teamOrder === TEAM_ORDER_THROGH_BALLS) {
