@@ -191,11 +191,11 @@ function calculateMiddleDominance(myLineup) {
 
     // WB DM
     let defensivePlayers = []
-    filterLineupPlayerByPosition(offensivePlayers, myLineup, 'DM')
-    filterLineupPlayerByPosition(offensivePlayers, myLineup, 'DML')
-    filterLineupPlayerByPosition(offensivePlayers, myLineup, 'DMR')
-    filterLineupPlayerByPosition(offensivePlayers, myLineup, 'LWB')
-    filterLineupPlayerByPosition(offensivePlayers, myLineup, 'RWB')
+    filterLineupPlayerByPosition(defensivePlayers, myLineup, 'DM')
+    filterLineupPlayerByPosition(defensivePlayers, myLineup, 'DML')
+    filterLineupPlayerByPosition(defensivePlayers, myLineup, 'DMR')
+    filterLineupPlayerByPosition(defensivePlayers, myLineup, 'LWB')
+    filterLineupPlayerByPosition(defensivePlayers, myLineup, 'RWB')
 
     // calculate contributions based on team order
     let teamOrder = myLineup.teamOrder
@@ -273,7 +273,7 @@ function readOpponentLineupData(opponent_lineup_file, playerNameToPlayerMap, pla
     rawLineupPos.forEach((rawPos, index) => {
         let lineupPos = new LineupPos()
         lineupPos.pos = rawPos.position
-        lineupPos.player = playerNameToPlayerMap[rawPos.firstName + " " + rawPos.lastName]
+        lineupPos.player = playerNameToPlayerMap[rawPos.firstName.trim() + " " + rawPos.lastName.trim()]
 
         allLineupPos.push(lineupPos)
     })
